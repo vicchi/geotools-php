@@ -28,9 +28,9 @@ if (!class_exists ('GeoGeometry')) {
 		 *
 		 * @see http://en.wikipedia.org/wiki/Earth%27s_radius#Mean_radii
 		 */
-		protected $EARTH_RADIUS = 6371000.0;
+		const EARTH_RADIUS = 6371000.0;
+		const EARTH_RADIUS_METERS = 6371000.0;
 
-		protected $EARTH_RADIUS_METERS = 6371000.0;
 		protected $EARTH_CIRCUMFERENCE_METERS;
 		protected $DEGREE_LATITUDE_METERS;
 
@@ -256,7 +256,7 @@ if (!class_exists ('GeoGeometry')) {
 
 			$c = 2 * asin(sqrt($a));
 
-			return $this -> EARTH_RADIUS * $c;
+			return self::EARTH_RADIUS * $c;
 		}
 
 		function linesCross($x1, $y1, $x2, $y2, $u1, $v1, $u2, $v2) {
@@ -340,7 +340,7 @@ if (!class_exists ('GeoGeometry')) {
 			// for n segments you need n+1 points
 			$points = array();
 
-			$relativeLatitude = $radius / $this -> EARTH_RADIUS_METERS * 180 / pi();
+			$relativeLatitude = $radius / self::EARTH_RADIUS_METERS * 180 / pi();
 			$relativeLongitude = $relativeLatitude / cos($this -> toRadians($latitude));
 
 			for ($i = 0; $i < $segments + 1; $i++) {
