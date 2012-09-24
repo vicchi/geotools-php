@@ -35,8 +35,8 @@ if (!class_exists ('GeoGeometry')) {
 		protected $DEGREE_LATITUDE_METERS;
 
 		function __construct() {
-			$this -> EARTH_CIRCUMFERENCE_METERS = 6371000.0 * pi() * 2.0;
-			$this -> DEGREE_LATITUDE_METERS = 6371000.0 * pi() / 180.0;
+			$this->EARTH_CIRCUMFERENCE_METERS = 6371000.0 * pi() * 2.0;
+			$this->DEGREE_LATITUDE_METERS = 6371000.0 * pi() / 180.0;
 		}
 
 		/**
@@ -90,8 +90,8 @@ if (!class_exists ('GeoGeometry')) {
 				throw new InvalidArgumentException("a polygon must have at least three points");
 			}
 
-			$bbox = $this -> polygonToBbox($polygonPoints);
-			if (!$this -> bboxContains($bbox, $latitude, $longitude)) {
+			$bbox = $this->polygonToBbox($polygonPoints);
+			if (!$this->bboxContains($bbox, $latitude, $longitude)) {
 				// outside the containing bbox
 				return FALSE;
 			}
@@ -178,8 +178,8 @@ if (!class_exists ('GeoGeometry')) {
 		}
 
 		private function lengthOfLongitudeDegreeAtLatitude($latitude) {
-			$latitudeInRadians = $this -> toRadians($latitude);
-			return cos($latitudeInRadians) * $this -> EARTH_CIRCUMFERENCE_METERS / 360.0;
+			$latitudeInRadians = $this->toRadians($latitude);
+			return cos($latitudeInRadians) * $this->EARTH_CIRCUMFERENCE_METERS / 360.0;
 		}
 
 		/**
@@ -193,7 +193,7 @@ if (!class_exists ('GeoGeometry')) {
 		 * @return the translated coordinate.
 		 */
 		function translateLongitude($latitude, $longitude, $meters) {
-			return array($latitude, $longitude + $meters / $this -> lengthOfLongitudeDegreeAtLatitude($latitude));
+			return array($latitude, $longitude + $meters / $this->lengthOfLongitudeDegreeAtLatitude($latitude));
 		}
 
 		/**
@@ -207,7 +207,7 @@ if (!class_exists ('GeoGeometry')) {
 		 * @return the translated coordinate.
 		 */
 		function translateLatitude($latitude, $longitude, $meters) {
-			return array($latitude + $meters / $this -> DEGREE_LATITUDE_METERS, $longitude);
+			return array($latitude + $meters / $this->DEGREE_LATITUDE_METERS, $longitude);
 		}
 
 		/**
@@ -222,8 +222,8 @@ if (!class_exists ('GeoGeometry')) {
 		 * @return the translated coordinate.
 		 */
 		function translate($latitude, $longitude, $lateralMeters, $longitudalMeters) {
-			$longitudal = $this -> translateLongitude($latitude, $longitude, $longitudalMeters);
-			return $this -> translateLatitude($longitudal[0], $longitudal[1], $lateralMeters);
+			$longitudal = $this->translateLongitude($latitude, $longitude, $longitudalMeters);
+			return $this->translateLatitude($longitudal[0], $longitudal[1], $lateralMeters);
 		}
 
 		/**
@@ -249,10 +249,10 @@ if (!class_exists ('GeoGeometry')) {
 			$lat2 = $point2[0];
 			$long2 = $point2[1];
 
-			$deltaLat = $this -> toRadians($lat2 - $lat1);
-			$deltaLon = $this -> toRadians($long2 - $long1);
+			$deltaLat = $this->toRadians($lat2 - $lat1);
+			$deltaLon = $this->toRadians($long2 - $long1);
 
-			$a = sin($deltaLat / 2) * sin($deltaLat / 2) + cos($this -> toRadians($lat1)) * cos($this -> toRadians($lat2)) * sin($deltaLon / 2) * sin($deltaLon / 2);
+			$a = sin($deltaLat / 2) * sin($deltaLat / 2) + cos($this->toRadians($lat1)) * cos($this->toRadians($lat2)) * sin($deltaLon / 2) * sin($deltaLon / 2);
 
 			$c = 2 * asin(sqrt($a));
 
@@ -271,7 +271,7 @@ if (!class_exists ('GeoGeometry')) {
 					// lines are the same
 					return $y1 <= $v1 && $v1 < $y2 || $y1 <= $v2 && $v2 < $y2;
 				} else {
-					// parallel -> they don't intersect!
+					// parallel->they don't intersect!
 					return FALSE;
 				}
 			} else if ($line1Vertical && !$line2Vertical) {
@@ -305,7 +305,7 @@ if (!class_exists ('GeoGeometry')) {
 						// lines are the same
 						return $x1 <= $u1 && $u1 < $x2 || $x1 <= $u2 && $u2 < $x2;
 					} else {
-						// parallel -> they don't intersect!
+						// parallel->they don't intersect!
 						return FALSE;
 					}
 				}
@@ -341,7 +341,7 @@ if (!class_exists ('GeoGeometry')) {
 			$points = array();
 
 			$relativeLatitude = $radius / self::EARTH_RADIUS_METERS * 180 / pi();
-			$relativeLongitude = $relativeLatitude / cos($this -> toRadians($latitude));
+			$relativeLongitude = $relativeLatitude / cos($this->toRadians($latitude));
 
 			for ($i = 0; $i < $segments + 1; $i++) {
 				// radians go from 0 to 2*PI; we want to divide the circle in nice
@@ -377,9 +377,9 @@ if (!class_exists ('GeoHash')) {
 		protected $geogeometry;
 
 		function __construct() {
-			$this -> geogeometry = new GeoGeometry();
-			for ($i = 0; $i < count($this -> BASE32_CHARS); $i++) {
-				$this -> BASE32_DECODE_MAP[$this -> BASE32_CHARS[$i]] = $i;
+			$this->geogeometry = new GeoGeometry();
+			for ($i = 0; $i < count($this->BASE32_CHARS); $i++) {
+				$this->BASE32_DECODE_MAP[$this->BASE32_CHARS[$i]] = $i;
 			}
 		}
 
@@ -409,7 +409,7 @@ if (!class_exists ('GeoHash')) {
 				if ($isEven) {
 					$mid = ($lonInterval[0] + $lonInterval[1]) / 2;
 					if ($longitude > $mid) {
-						$ch |= $this -> BITS[$bit];
+						$ch |= $this->BITS[$bit];
 						$lonInterval[0] = $mid;
 					} else {
 						$lonInterval[1] = $mid;
@@ -418,7 +418,7 @@ if (!class_exists ('GeoHash')) {
 				} else {
 					$mid = ($latInterval[0] + $latInterval[1]) / 2;
 					if ($latitude > $mid) {
-						$ch |= $this -> BITS[$bit];
+						$ch |= $this->BITS[$bit];
 						$latInterval[0] = $mid;
 					} else {
 						$latInterval[1] = $mid;
@@ -430,7 +430,7 @@ if (!class_exists ('GeoHash')) {
 				if ($bit < 4) {
 					$bit++;
 				} else {
-					$geoHash = $geoHash . $this -> BASE32_CHARS[$ch];
+					$geoHash = $geoHash . $this->BASE32_CHARS[$ch];
 					$bit = 0;
 					$ch = 0;
 				}
@@ -455,7 +455,7 @@ if (!class_exists ('GeoHash')) {
 				if ($isEven) {
 					$mid = ($lonInterval[0] + $lonInterval[1]) / 2;
 					if ($longitude > $mid) {
-						$ch |= $this -> BITS[$bit];
+						$ch |= $this->BITS[$bit];
 						$lonInterval[0] = $mid;
 					} else {
 						$lonInterval[1] = $mid;
@@ -464,7 +464,7 @@ if (!class_exists ('GeoHash')) {
 				} else {
 					$mid = ($latInterval[0] + $latInterval[1]) / 2;
 					if ($latitude > $mid) {
-						$ch |= $this -> BITS[$bit];
+						$ch |= $this->BITS[$bit];
 						$latInterval[0] = $mid;
 					} else {
 						$latInterval[1] = $mid;
@@ -476,7 +476,7 @@ if (!class_exists ('GeoHash')) {
 				if ($bit < 4) {
 					$bit++;
 				} else {
-					$geoHash = $geoHash . $this -> BASE32_CHARS[$ch];
+					$geoHash = $geoHash . $this->BASE32_CHARS[$ch];
 					$bit = 0;
 					$ch = 0;
 				}
@@ -502,9 +502,9 @@ if (!class_exists ('GeoHash')) {
 			$isEven = TRUE;
 
 			for ($i = 0; $i < strlen($geoHash); $i++) {
-				$currentChar = $this -> BASE32_DECODE_MAP[$geoHash[$i]];
-				for ($z = 0; $z < sizeof($this -> BITS); $z++) {
-					$mask = $this -> BITS[$z];
+				$currentChar = $this->BASE32_DECODE_MAP[$geoHash[$i]];
+				for ($z = 0; $z < sizeof($this->BITS); $z++) {
+					$mask = $this->BITS[$z];
 					if ($isEven) {
 						if (($currentChar & $mask) != 0) {
 							$lonInterval[0] = ($lonInterval[0] + $lonInterval[1]) / 2;
@@ -539,9 +539,9 @@ if (!class_exists ('GeoHash')) {
 			$isEven = TRUE;
 
 			for ($i = 0; $i < strlen($geoHash); $i++) {
-				$currentChar = $this -> BASE32_DECODE_MAP[$geoHash[$i]];
-				for ($z = 0; $z < sizeof($this -> BITS); $z++) {
-					$mask = $this -> BITS[$z];
+				$currentChar = $this->BASE32_DECODE_MAP[$geoHash[$i]];
+				for ($z = 0; $z < sizeof($this->BITS); $z++) {
+					$mask = $this->BITS[$z];
 					if ($isEven) {
 						if (($currentChar & $mask) != 0) {
 							$lonInterval[0] = ($lonInterval[0] + $lonInterval[1]) / 2;
@@ -568,11 +568,11 @@ if (!class_exists ('GeoHash')) {
 		 *         box.
 		 */
 		function north($geoHash) {
-			$bbox = $this -> decodeToBbox($geoHash);
+			$bbox = $this->decodeToBbox($geoHash);
 			$latDiff = $bbox[1] - $bbox[0];
 			$lat = $bbox[0] - $latDiff / 2;
 			$lon = ($bbox[2] + $bbox[3]) / 2;
-			return $this -> encode($lat, $lon, strlen($geoHash));
+			return $this->encode($lat, $lon, strlen($geoHash));
 		}
 
 		/**
@@ -580,11 +580,11 @@ if (!class_exists ('GeoHash')) {
 		 *         box.
 		 */
 		function south($geoHash) {
-			$bbox = $this -> decodeToBbox($geoHash);
+			$bbox = $this->decodeToBbox($geoHash);
 			$latDiff = $bbox[1] - $bbox[0];
 			$lat = $bbox[1] + $latDiff / 2;
 			$lon = ($bbox[2] + $bbox[3]) / 2;
-			return $this -> encode($lat, $lon, strlen($geoHash));
+			return $this->encode($lat, $lon, strlen($geoHash));
 		}
 
 		/**
@@ -592,7 +592,7 @@ if (!class_exists ('GeoHash')) {
 		 *         box.
 		 */
 		function west($geoHash) {
-			$bbox = $this -> decodeToBbox($geoHash);
+			$bbox = $this->decodeToBbox($geoHash);
 			$lonDiff = $bbox[3] - $bbox[2];
 			$lat = ($bbox[0] + $bbox[1]) / 2;
 			$lon = $bbox[2] - $lonDiff / 2;
@@ -600,7 +600,7 @@ if (!class_exists ('GeoHash')) {
 				$lon = 180 - ($lon + 180);
 			}
 
-			return $this -> encode($lat, $lon, strlen($geoHash));
+			return $this->encode($lat, $lon, strlen($geoHash));
 		}
 
 		/**
@@ -608,7 +608,7 @@ if (!class_exists ('GeoHash')) {
 		 *         box.
 		 */
 		function east($geoHash) {
-			$bbox = $this -> decodeToBbox($geoHash);
+			$bbox = $this->decodeToBbox($geoHash);
 			$lonDiff = $bbox[3] - $bbox[2];
 			$lat = ($bbox[0] + $bbox[1]) / 2;
 			$lon = $bbox[3] + $lonDiff / 2;
@@ -617,7 +617,7 @@ if (!class_exists ('GeoHash')) {
 				$lon = -180 + ($lon - 180);
 			}
 
-			return $this -> encode($lat, $lon, strlen($geoHash));
+			return $this->encode($lat, $lon, strlen($geoHash));
 		}
 
 		function isWest($l1, $l2) {
@@ -696,30 +696,30 @@ if (!class_exists ('GeoHash')) {
 				throw new InvalidArgumentException("maxLength should be between 1 and 10");
 			}
 
-			$bbox = $this -> geogeometry -> polygonToBbox($polygonPoints);
+			$bbox = $this->geogeometry->polygonToBbox($polygonPoints);
 			// first lets figure out an appropriate geohash length
-			$diagonal = $this -> geogeometry -> distance(array($bbox[0], $bbox[2]), array($bbox[1], $bbox[3]));
-			$hashLength = $this -> getSuitableHashLength($diagonal);
+			$diagonal = $this->geogeometry->distance(array($bbox[0], $bbox[2]), array($bbox[1], $bbox[3]));
+			$hashLength = $this->getSuitableHashLength($diagonal);
 
 			$partiallyContained = array();
 			// now lets generate all geohashes for the containing bounding box
 			// lets start at the top left:
 
-			$rowHash = $this -> encode($bbox[0], $bbox[2], $hashLength);
-			$rowBox = $this -> decodeToBbox($rowHash);
+			$rowHash = $this->encode($bbox[0], $bbox[2], $hashLength);
+			$rowBox = $this->decodeToBbox($rowHash);
 			while ($rowBox[0] < $bbox[1]) {
 				$columnHash = $rowHash;
 				$columnBox = $rowBox;
 
-				while ($this -> isWest($columnBox[2], $bbox[3])) {
+				while ($this->isWest($columnBox[2], $bbox[3])) {
 					array_push($partiallyContained, $columnHash);
-					$columnHash = $this -> east($columnHash);
-					$columnBox = $this -> decodeToBbox($columnHash);
+					$columnHash = $this->east($columnHash);
+					$columnBox = $this->decodeToBbox($columnHash);
 				}
 
 				// move to the next row
-				$rowHash = $this -> south($rowHash);
-				$rowBox = $this -> decodeToBbox($rowHash);
+				$rowHash = $this->south($rowHash);
+				$rowBox = $this->decodeToBbox($rowHash);
 			}
 
 			$fullyContained = array();
@@ -730,7 +730,7 @@ if (!class_exists ('GeoHash')) {
 			// doesn't serve much purpose.
 
 			while ($detail < $maxLength) {
-				$result = $this -> splitAndFilter($polygonPoints, $fullyContained, $partiallyContained);
+				$result = $this->splitAndFilter($polygonPoints, $fullyContained, $partiallyContained);
 				$partiallyContained = $result[0];
 				$fullyContained = $result[1];
 				$detail = $detail + 1;
@@ -749,11 +749,11 @@ if (!class_exists ('GeoHash')) {
 			// now we need to break up the partially contained hashes
 			foreach ($partiallyContained as $hash) {
 				foreach ($this->subHashes($hash) as $h) {
-					$hashBbox = $this -> decodeToBbox($h);
-					$nw = $this -> geogeometry -> polygonContains($polygonPoints, $hashBbox[0], $hashBbox[2]);
-					$ne = $this -> geogeometry -> polygonContains($polygonPoints, $hashBbox[0], $hashBbox[3]);
-					$sw = $this -> geogeometry -> polygonContains($polygonPoints, $hashBbox[1], $hashBbox[2]);
-					$se = $this -> geogeometry -> polygonContains($polygonPoints, $hashBbox[1], $hashBbox[3]);
+					$hashBbox = $this->decodeToBbox($h);
+					$nw = $this->geogeometry->polygonContains($polygonPoints, $hashBbox[0], $hashBbox[2]);
+					$ne = $this->geogeometry->polygonContains($polygonPoints, $hashBbox[0], $hashBbox[3]);
+					$sw = $this->geogeometry->polygonContains($polygonPoints, $hashBbox[1], $hashBbox[2]);
+					$se = $this->geogeometry->polygonContains($polygonPoints, $hashBbox[1], $hashBbox[3]);
 					if ($nw && $ne && $sw && $se) {
 						array_push($fullyContained, $h);
 					} else if ($nw || $ne || $sw || $se) {
@@ -762,16 +762,16 @@ if (!class_exists ('GeoHash')) {
 						$last = $polygonPoints[0];
 						for ($i = 1; $i < sizeof($polygonPoints); $i++) {
 							$current = $polygonPoints[$i];
-							if ($this -> geogeometry -> linesCross($hashBbox[0], $hashBbox[2], $hashBbox[0], $hashBbox[3], $last[0], $last[1], $current[0], $current[1])) {
+							if ($this->geogeometry->linesCross($hashBbox[0], $hashBbox[2], $hashBbox[0], $hashBbox[3], $last[0], $last[1], $current[0], $current[1])) {
 								array_push($stillPartial, $h);
 								break;
-							} else if ($this -> geogeometry -> linesCross($hashBbox[0], $hashBbox[3], $hashBbox[1], $hashBbox[3], $last[0], $last[1], $current[0], $current[1])) {
+							} else if ($this->geogeometry->linesCross($hashBbox[0], $hashBbox[3], $hashBbox[1], $hashBbox[3], $last[0], $last[1], $current[0], $current[1])) {
 								array_push($stillPartial, $h);
 								break;
-							} else if ($this -> geogeometry -> linesCross($hashBbox[1], $hashBbox[3], $hashBbox[1], $hashBbox[2], $last[0], $last[1], $current[0], $current[1])) {
+							} else if ($this->geogeometry->linesCross($hashBbox[1], $hashBbox[3], $hashBbox[1], $hashBbox[2], $last[0], $last[1], $current[0], $current[1])) {
 								array_push($stillPartial, $h);
 								break;
-							} else if ($this -> geogeometry -> linesCross($hashBbox[1], $hashBbox[2], $hashBbox[0], $hashBbox[2], $last[0], $last[1], $current[0], $current[1])) {
+							} else if ($this->geogeometry->linesCross($hashBbox[1], $hashBbox[2], $hashBbox[0], $hashBbox[2], $last[0], $last[1], $current[0], $current[1])) {
 								array_push($stillPartial, $h);
 								break;
 							}
@@ -860,7 +860,7 @@ if (!class_exists ('GeoHash')) {
 				$previousPoint = $wayPoints[i - 1];
 				$point = $wayPoints[i];
 
-				$hashesForSegment = $this -> geoHashesForLine($hashLength, $previousPoint[0], $previousPoint[1], $point[0], $point[1]);
+				$hashesForSegment = $this->geoHashesForLine($hashLength, $previousPoint[0], $previousPoint[1], $point[0], $point[1]);
 				foreach ($hashesForSegment as $h) {
 					array_push($hashes, $h);
 				}
@@ -882,18 +882,18 @@ if (!class_exists ('GeoHash')) {
 				throw new InvalidArgumentException("identical begin and end coordinate: line must have two different points");
 			}
 
-			$result1 = $this -> encodeWithBbox($lat1, $lon1, $hashLength);
+			$result1 = $this->encodeWithBbox($lat1, $lon1, $hashLength);
 			$bbox1 = $result1[1];
-			$result2 = $this -> encodeWithBbox($lat2, $lon2, $hashLength);
+			$result2 = $this->encodeWithBbox($lat2, $lon2, $hashLength);
 			$bbox2 = $result2[1];
 			$hash1 = $result1[0];
 			$hash2 = $result2[0];
 			if (strcmp($hash1, $hash2) == 0) {
-				return $this -> getGeoHashesForPolygon($hashLength, array( array($bbox1[0], $bbox1[2]), array($bbox1[0], $bbox1[3]), array($bbox1[1], $bbox1[3]), array($bbox1[1], $bbox2[2])));
+				return $this->getGeoHashesForPolygon($hashLength, array( array($bbox1[0], $bbox1[2]), array($bbox1[0], $bbox1[3]), array($bbox1[1], $bbox1[3]), array($bbox1[1], $bbox2[2])));
 			} else if ($lat1 <= $lat2) {
-				return $this -> getGeoHashesForPolygon($hashLength, array( array($bbox1[1], $bbox1[2]), array($bbox1[0], $bbox1[3]), array($bbox2[0], $bbox2[3]), array($bbox2[1], $bbox2[2])));
+				return $this->getGeoHashesForPolygon($hashLength, array( array($bbox1[1], $bbox1[2]), array($bbox1[0], $bbox1[3]), array($bbox2[0], $bbox2[3]), array($bbox2[1], $bbox2[2])));
 			} else {
-				return $this -> getGeoHashesForPolygon($hashLength, array( array($bbox1[0], $bbox1[2]), array($bbox1[1], $bbox1[3]), array($bbox2[1], $bbox2[2]), array($bbox2[0], $bbox2[3])));
+				return $this->getGeoHashesForPolygon($hashLength, array( array($bbox1[0], $bbox1[2]), array($bbox1[1], $bbox1[3]), array($bbox2[1], $bbox2[2]), array($bbox2[0], $bbox2[3])));
 			}
 		}
 
@@ -901,19 +901,19 @@ if (!class_exists ('GeoHash')) {
 			// bit of a wet finger approach here: it doesn't make much sense to have
 			// lots of segments unless we have a long geohash or a large radius
 			$segments;
-			if ($length > $this -> getSuitableHashLength($radius) - 3) {
+			if ($length > $this->getSuitableHashLength($radius) - 3) {
 				$segments = 200;
-			} else if ($length > $this -> getSuitableHashLength($radius) - 2) {
+			} else if ($length > $this->getSuitableHashLength($radius) - 2) {
 				$segments = 100;
-			} else if ($length > $this -> getSuitableHashLength($radius) - 1) {
+			} else if ($length > $this->getSuitableHashLength($radius) - 1) {
 				$segments = 50;
 			} else {
 				// we don't seem to care about detail
 				$segments = 10;
 			}
 
-			$circle2polygon = $this -> geogeometry -> circle2polygon($segments, $latitude, $longitude, $radius);
-			return $this -> getGeoHashesForPolygon($length, $circle2polygon);
+			$circle2polygon = $this->geogeometry->circle2polygon($segments, $latitude, $longitude, $radius);
+			return $this->getGeoHashesForPolygon($length, $circle2polygon);
 		}
 
 	}	// end-class GeoHash
