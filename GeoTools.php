@@ -21,18 +21,17 @@
  * SOFTWARE.
  */
 
-if (!class_exists ('GeoGeometry')) {
-	class GeoGeometry {
-		/**
-		 * Earth's mean radius, in meters.
-		 *
-		 * @see http://en.wikipedia.org/wiki/Earth%27s_radius#Mean_radii
-		 */
-		const EARTH_RADIUS = 6371000.0;
-		const EARTH_RADIUS_METERS = 6371000.0;
+class GeoGeometry {
+	/**
+	 * Earth's mean radius, in meters.
+	 *
+	 * @see http://en.wikipedia.org/wiki/Earth%27s_radius#Mean_radii
+	 */
+	protected $EARTH_RADIUS = 6371000.0;
 
-		protected $EARTH_CIRCUMFERENCE_METERS;
-		protected $DEGREE_LATITUDE_METERS;
+	protected $EARTH_RADIUS_METERS = 6371000.0;
+	protected $EARTH_CIRCUMFERENCE_METERS;
+	protected $DEGREE_LATITUDE_METERS;
 
 		function __construct() {
 			$this->EARTH_CIRCUMFERENCE_METERS = 6371000.0 * pi() * 2.0;
@@ -320,54 +319,84 @@ if (!class_exists ('GeoGeometry')) {
 			}
 		}
 
-		/**
-		 * Converts a circle to a polygon.
-		 *
-		 * @param segments
-		 *            number of segments the polygon should have. The higher this
-		 *            number, the better of an approximation the polygon is for the
-		 *            circle.
-		 * @param latitude
-		 * @param longitude
-		 * @param radius
-		 * @return an array of the points [latitude,longitude] that make up the
-		 *         polygon.
-		 */
-		function circle2polygon($segments, $latitude, $longitude, $radius) {
-			if ($segments < 5) {
-				throw new InvalidArgumentException("you need a minimum of 5 segments");
-			}
-			// for n segments you need n+1 points
-			$points = array();
-
-			$relativeLatitude = $radius / self::EARTH_RADIUS_METERS * 180 / pi();
-			$relativeLongitude = $relativeLatitude / cos($this->toRadians($latitude));
-
-			for ($i = 0; $i < $segments + 1; $i++) {
-				// radians go from 0 to 2*PI; we want to divide the circle in nice
-				// segments
-				$theta = 2 * pi() * $i / $segments;
-
-				// on the unit circle, any point of the circle has the coordinate
-				// cos(t),sin(t) where t is the radian. So, all we need to do that
-				// is multiply that with the relative latitude and longitude
-				// note, latitude takes the role of y, not x. By convention we
-				// always note latitude, longitude instead of the other way around
-				$latOnCircle = $latitude + $relativeLatitude * sin($theta);
-				$lonOnCircle = $longitude + $relativeLongitude * cos($theta);
-				if ($lonOnCircle > 180) {
-					$lonOnCircle = -180 + ($lonOnCircle - 180);
-				} else if ($lonOnCircle < -180) {
-					$lonOnCircle = 180 - ($lonOnCircle + 180);
-				}
-
-				array_push($points, array($latOnCircle, $lonOnCircle));
-			}
-			return $points;
+	/**
+	 * Converts a circle to a polygon.
+	 *
+	 * Note. this function does not work well near the poles.
+	 * @param segments
+	 *            number of segments the polygon should have. The higher this
+	 *            number, the better of an approximation the polygon is for the
+	 *            circle.
+	 * @param latitude
+	 * @param longitude
+	 * @param radius
+	 * @return an array of the points [latitude,longitude] that make up the
+	 *         polygon.
+	 */
+	function circle2polygon($segments, $latitude, $longitude, $radius) {
+		if ($segments < 5) {
+			throw new InvalidArgumentException("you need a minimum of 5 segments");
 		}
+		// for n segments you need n+1 points
+		$points = array();
 
-	}	// end-class GeoGeometry
-}	// end-if (!class_exists ('GeoGeometry'))
+		$relativeLatitude = $radius / $this -> EARTH_RADIUS_METERS * 180 / pi();
+        // things get funny near the north and south pole, so doing a modulo 90
+        // to ensure that the relative amount of degrees doesn't get too crazy.		
+        // modulo seems to work different in php than in Java (no support for doubles using the operator)
+		$relativeLongitude = fmod($relativeLatitude / cos($this -> toRadians($latitude)), 90);		
+
+		for ($i = 0; $i < $segments; $i++) {
+			// radians go from 0 to 2*PI; we want to divide the circle in nice
+			// segments
+			$theta = 2 * pi() * $i / $segments;
+			$theta=$theta+=0.1;
+            if($theta>= 2*pi()) {
+                $theta=$theta-2*pi();
+            }
+
+			// on the unit circle, any point of the circle has the coordinate
+			// cos(t),sin(t) where t is the radian. So, all we need to do that
+			// is multiply that with the relative latitude and longitude
+			// note, latitude takes the role of y, not x. By convention we
+			// always note latitude, longitude instead of the other way around
+			$latOnCircle = $latitude + $relativeLatitude * sin($theta);
+			$lonOnCircle = $longitude + $relativeLongitude * cos($theta);
+			if ($lonOnCircle > 180) {
+				$lonOnCircle = -180 + ($lonOnCircle - 180);
+			} else if ($lonOnCircle < -180) {
+				$lonOnCircle = 180 - ($lonOnCircle + 180);
+			}
+			
+            if($latOnCircle > 90) {
+                $latOnCircle = 90 - ($latOnCircle-90);
+            } else if($latOnCircle < -90) {
+                $latOnCircle = -90 - ($latOnCircle+90);
+            }
+
+			array_push($points, array($latOnCircle, $lonOnCircle));
+		}
+		// should end with same point as the origin
+        array_push($points, array($points[0][0],$points[0][1]));
+		return $points;
+	}
+
+    /**
+     * @param direction n,s,e,w
+     * @param degrees
+     * @param minutes
+     * @param seconds
+     * @return decimal degree
+     */
+    function toDecimalDegree($direction,$degrees, $minutes, $seconds) {
+        $factor=1;
+		
+        if($direction &&  (strcmp(strtolower($direction[0]),'w')==0  || strcmp(strtolower($direction[0]),'s')==0)) {
+            $factor=-1;
+        }
+        return ($degrees + $minutes/60 + $seconds/60/60)*$factor;
+    }
+}
 
 if (!class_exists ('GeoHash')) {
 	class GeoHash {
@@ -652,33 +681,26 @@ if (!class_exists ('GeoHash')) {
 			return $l1 < $l2;
 		}
 
-		/**
-		 * Returns a suitable geo hash length for the desired granularity in meters. The maximum length returned here is 8.
-		 * @param granularityInMeters
-		 * @return a length between 2 and 10.
-		 */
-		function getSuitableHashLength($granularityInMeters) {
-			if ($granularityInMeters < 1) {
-				$hashLength = 10;
-			} else if ($granularityInMeters < 5) {
-				$hashLength = 9;
-			} else if ($granularityInMeters < 50) {
-				$hashLength = 8;
-			} else if ($granularityInMeters < 200) {
-				$hashLength = 7;
-			} else if ($granularityInMeters < 1500) {
-				$hashLength = 6;
-			} else if ($granularityInMeters < 10000) {
-				$hashLength = 5;
-			} else if ($granularityInMeters < 50000) {
-				$hashLength = 4;
-			} else if ($granularityInMeters < 200000) {
-				$hashLength = 3;
-			} else {
-				$hashLength = 2;
-			}
-			return $hashLength;
+	/**
+	 * Returns a suitable geo hash length for the desired granularity in meters. The maximum length returned here is 8.
+	 * @param granularityInMeters
+	 * @return a length between 2 and 10.
+	 */
+	function getSuitableHashLength($granularityInMeters, $latitude, $longitude) {
+		if($granularityInMeters < 5) {
+			return 10;
 		}
+		$hash = $this->encode($latitude, $longitude);
+		$width=0;
+		$length=strlen($hash);
+		while($width < $granularityInMeters && strlen($hash) >=2) {
+			$length=strlen($hash);
+			$bbox = $this->decodeToBbox($hash);
+			$width=$this->geogeometry->distance(array($bbox[0],$bbox[2]), array($bbox[0],$bbox[3]));
+			$hash=substr($hash, 0,strlen($hash)-1);
+		}
+		return min($length+1, 12);
+	}
 
 		/**
 		 * Cover the polygon with geo hashes. This is useful for indexing mainly.
@@ -696,10 +718,10 @@ if (!class_exists ('GeoHash')) {
 				throw new InvalidArgumentException("maxLength should be between 1 and 10");
 			}
 
-			$bbox = $this->geogeometry->polygonToBbox($polygonPoints);
-			// first lets figure out an appropriate geohash length
-			$diagonal = $this->geogeometry->distance(array($bbox[0], $bbox[2]), array($bbox[1], $bbox[3]));
-			$hashLength = $this->getSuitableHashLength($diagonal);
+		$bbox = $this -> geogeometry -> polygonToBbox($polygonPoints);
+		// first lets figure out an appropriate geohash length
+		$diagonal = $this -> geogeometry -> distance(array($bbox[0], $bbox[2]), array($bbox[1], $bbox[3]));
+		$hashLength = $this -> getSuitableHashLength($diagonal,$bbox[0], $bbox[2]);
 
 			$partiallyContained = array();
 			// now lets generate all geohashes for the containing bounding box
@@ -897,20 +919,21 @@ if (!class_exists ('GeoHash')) {
 			}
 		}
 
-		function geoHashesForCircle($length, $latitude, $longitude, $radius) {
-			// bit of a wet finger approach here: it doesn't make much sense to have
-			// lots of segments unless we have a long geohash or a large radius
-			$segments;
-			if ($length > $this->getSuitableHashLength($radius) - 3) {
-				$segments = 200;
-			} else if ($length > $this->getSuitableHashLength($radius) - 2) {
-				$segments = 100;
-			} else if ($length > $this->getSuitableHashLength($radius) - 1) {
-				$segments = 50;
-			} else {
-				// we don't seem to care about detail
-				$segments = 10;
-			}
+	function geoHashesForCircle($length, $latitude, $longitude, $radius) {
+		// bit of a wet finger approach here: it doesn't make much sense to have
+		// lots of segments unless we have a long geohash or a large radius
+		$segments;
+		$suitableLength=getSuitableHashLength($radius,$latitude, $longitude);
+		if($length > $suitableLength - 3) {
+			$segments = 200;
+		} else if ($length > $suitableLength - 2) {
+			$segments = 100;
+		} else if ($length > $suitableLength - 1) {
+			$segments = 50;
+		} else {
+			// we don't seem to care about detail
+			$segments = 10;
+		}
 
 			$circle2polygon = $this->geogeometry->circle2polygon($segments, $latitude, $longitude, $radius);
 			return $this->getGeoHashesForPolygon($length, $circle2polygon);

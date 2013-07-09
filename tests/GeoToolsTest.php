@@ -147,7 +147,7 @@ class GeoHashTest extends PHPUnit_Framework_TestCase {
 	}
 
 	function testShouldReturnSuitableLength() {
-		$this -> assertEquals(4, $this -> geohash -> getSuitableHashLength(11000));
+		$this -> assertEquals(5, $this -> geohash -> getSuitableHashLength(11000,50,13));
 	}
 
 	function testShouldReturn32SubHashes() {
@@ -186,6 +186,11 @@ class GeoHashTest extends PHPUnit_Framework_TestCase {
 			}
 		}
 		$this -> assertTrue($countEast > 1);
+	}
+	
+	function testShouldConvertNonDecimalDegree() {
+		$this->assertEquals($this->geogeometry->toDecimalDegree("W",111,38,45.40), -111.64594444444445);
+		$this->assertEquals($this->geogeometry->toDecimalDegree("E",111,38,45.40), 111.64594444444445);
 	}
 }
 ?>
